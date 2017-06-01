@@ -16,22 +16,54 @@ const PRODUCTS = [
 ];
 
 class App extends React.Component{
+    state = {
+        'searchText' : '',
+        'inStockOnly' : false
+    }
+
+    updateInput=(searchText,inStockOnly)=>{
+        this.setState((oldState)=>{
+                if (searchText === null)
+                return(
+                {
+                    'searchText': oldState.searchText,
+                    'inStockOnly' : inStockOnly
+                })
+               return(
+                {
+                    'searchText': searchText,
+                    'inStockOnly' : oldState.inStockOnly
+                }) 
+        })
+    }
+
     render=(props)=>{
         return(
         <div className="App">
-            <Inputs />
+            <Inputs updateInput={this.updateInput}/>
             <SearchResults products={this.props.products}/>
         </div>
         )
     }
 }
 
-const Inputs=()=>{
+const Inputs=(props)=>{
+
+    const updateState=(event)=>{
+       let {type} = event.target
+       let {checked} = event.target
+       let {value} = event.target
+       if (type === 'checkbox')
+            props.updateInput(null, checked)
+       else
+            props.updateInput(value, null)
+    }
+
     return(
         <div className="Inputs">
-            <input type="text" name="searchBox" placeholder="search" />
+            <input type="text" name="searchBox" placeholder="search" onChange={updateState} />
             <br/>
-            <input type="checkbox" name="stockFilter" />
+            <input type="checkbox" name="stockFilter" onChange={updateState} />
             Only show products in stock
         </div>
     )
@@ -83,11 +115,21 @@ const ResultCategory=(props)=>{
     }
 
 const Result=(props)=>{
-    return(
-        <div className="Result">
-            <span>{props.name}</span><span>{props.price}</span>
-        </div>
-    )
+    if (props.stocked)
+    {
+        return(
+            <div className="Result">
+                <span>{props.name}</span><span>{props.price}</span>
+            </div>
+        ) 
+    } else {
+        return(
+            <div className="Result">
+                <span className="outOfStock">{props.name}</span><span>{props.price}</span>
+            </div>
+        )
+    }
+    
 }
 
 ReactDOM.render(<App products={PRODUCTS}/>, document.getElementById('root'));

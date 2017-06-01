@@ -13,7 +13,7 @@ body {
 
 .Inputs{
   width: 480px;
-  border: thin solid yellow;
+  /*border: thin solid yellow;*/
 }
 
 .Inputs input{
@@ -22,7 +22,7 @@ body {
 
 .SearchResults{
   width: 480px;
-  border: thin solid green; 
+  /*border: thin solid green; */
 }
 
 .SearchResults  h3{
@@ -32,15 +32,19 @@ body {
 
 .ResultCategory{
   width: 480px;
-  border: thin solid pink; 
+  /*border: thin solid pink; */
 }
 
 .Result{
   width: 480px;
-  border: thin solid yellow; 
+  /*border: thin solid yellow; */
 }
 
 .Result span{
   width: 100px;
   display: inline-block;
+}
+
+.outOfStock{
+  color: red;
 }
