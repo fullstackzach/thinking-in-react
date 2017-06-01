@@ -1,7 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-// import App from './App';
-// import registerServiceWorker from './registerServiceWorker';
 import './index.css';
 import PropTypes from 'prop-types';
 
@@ -22,29 +20,45 @@ class App extends React.Component{
     }
 
     updateInput=(searchText,inStockOnly)=>{
-        this.setState((oldState)=>{
-                if (searchText === null)
+        this.setState(()=>{
+                if (searchText === null)  //the change came from the checkbox
                 return(
                 {
-                    'searchText': oldState.searchText,
                     'inStockOnly' : inStockOnly
                 })
-               return(
+               return(    //the change came from the search box
                 {
-                    'searchText': searchText,
-                    'inStockOnly' : oldState.inStockOnly
+                    'searchText': searchText
                 }) 
         })
     }
 
+
     render=(props)=>{
+        function regex(string, search){
+            let myRegexp = new RegExp(`${search}`,'i');
+            return myRegexp.test(string);
+        }
+
+        //filter props based on search text and checkbox
+        let filteredProducts = this.props.products.filter((product)=>{
+            return regex(product.name, this.state.searchText)
+        }).filter((product)=>{
+            if (this.state.inStockOnly && (!product.stocked))
+                return false
+            return true
+        })
+
         return(
         <div className="App">
             <Inputs updateInput={this.updateInput}/>
-            <SearchResults products={this.props.products}/>
+            <SearchResults products={filteredProducts}/>
         </div>
         )
     }
+}
+App.propTypes ={
+    products: PropTypes.array.isRequired
 }
 
 const Inputs=(props)=>{
@@ -69,6 +83,10 @@ const Inputs=(props)=>{
     )
 }
 
+Inputs.propTypes ={
+    updateInput: PropTypes.func.isRequired,
+}
+
 const SearchResults=(props)=>{
     let {products} = props
 
@@ -79,12 +97,13 @@ const SearchResults=(props)=>{
     let categories = []
     let filterProducts = []
     unique.forEach((val)=>{
-        //this can be improved--- it's sending all of the products, 
-        //could it just send only the products for it's own category???
         filterProducts= products.filter((item) => {
             return item.category === val
         })
-        categories.push(<ResultCategory key={val} name={val} products={filterProducts}/>)
+        categories.push(<ResultCategory 
+                        key={val} 
+                        name={val} 
+                        products={filterProducts}/>)
     })
     //send it on up
     return(
@@ -95,12 +114,19 @@ const SearchResults=(props)=>{
         </div>
     )
 }
+SearchResults.propTypes ={
+    products: PropTypes.array.isRequired
+}
 
 const ResultCategory=(props)=>{
     const {products} = props;
     const results = [];
     products.forEach((value) =>{
-        results.push(<Result key={value.name} price={value.price} stocked={value.stocked} name={value.name} />)
+            results.push(<Result key={value.name} 
+                        price={value.price} 
+                        stocked={value.stocked} 
+                        name={value.name} 
+            />)
     })
     return(
     <div className="ResultCategory">
@@ -109,10 +135,10 @@ const ResultCategory=(props)=>{
     </div>
     )
 }
-    ResultCategory.propTypes ={
-        name: PropTypes.string.isRequired,
-        products: PropTypes.array.isRequired
-    }
+ResultCategory.propTypes ={
+    name: PropTypes.string.isRequired,
+    products: PropTypes.array.isRequired
+}
 
 const Result=(props)=>{
     if (props.stocked)
@@ -131,6 +157,11 @@ const Result=(props)=>{
     }
     
 }
+Result.propTypes ={
+    name: PropTypes.string.isRequired,
+    price: PropTypes.string.isRequired,
+    stocked: PropTypes.bool.isRequired
+}
+
 
 ReactDOM.render(<App products={PRODUCTS}/>, document.getElementById('root'));
-// registerServiceWorker();
